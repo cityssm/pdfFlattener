@@ -24,14 +24,32 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 
 public class FlattenPDF {
 	
-	public static int IMAGE_DPI = 200;
+	/**
+	 * Whether or not debug output is printed to the console.
+	 */
 	public static boolean SHOW_DEBUG = true;
+	
+	/**
+	 * The suggested prefix to add to output files. 
+	 */
+	public static String DESTINATION_FILENAME_PREFIX = "flat--";
+	
+	/**
+	 * The DPI that should be used when generating images.
+	 * Higher DPI increases the memory requirements and output file sizes, but also produces sharper images.
+	 */
+	public static int IMAGE_DPI = 200;
+	
 
 	public static void main(String[] args) {
 		
 		// Settings
 		
 		System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
+				
+		/*
+		 * Set up JFileChooser
+		 */
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -40,49 +58,93 @@ public class FlattenPDF {
 			// ignore and use default
 		}
 		
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PDF Documents", "pdf"));
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		
 		/*
 		 * Get the source file
 		 */
 		
-		JFileChooser fileChooser = new JFileChooser();
+		File sourceFile = null;
 		
-		fileChooser.setDialogTitle("Select the Source PDF File to Flatten");
-		fileChooser.setApproveButtonText("Set Source PDF");
-		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("PDF Documents", "pdf"));
-		fileChooser.setAcceptAllFileFilterUsed(false);
+		boolean sourceFileFromArgument = false;
 		
-		int returnValue = fileChooser.showOpenDialog(null);
-		
-		if (returnValue != JFileChooser.APPROVE_OPTION) {
-			JOptionPane.showMessageDialog(null, "No Source PDF file selected.", "Error", JOptionPane.ERROR_MESSAGE);
-			System.exit(1);
+		if (args.length >= 1) {
+			sourceFile = new File(args[0]);
+			
+			if (!sourceFile.exists() || !sourceFile.isFile() || !sourceFile.canRead() || !sourceFile.getName().toLowerCase().endsWith(".pdf")) {
+				JOptionPane.showMessageDialog(null, "Invalid source file.\n" +
+						args[0], "Error", JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+			else {
+				sourceFileFromArgument = true;
+			}
 		}
 		
-		File sourceFile = fileChooser.getSelectedFile();
+		if (!sourceFileFromArgument) {
+			
+			fileChooser.setDialogTitle("Select the Source PDF File to Flatten");
+			fileChooser.setApproveButtonText("Set Source PDF");
+
+			int returnValue = fileChooser.showOpenDialog(null);
+			
+			if (returnValue != JFileChooser.APPROVE_OPTION) {
+				JOptionPane.showMessageDialog(null, "No Source PDF file selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+			
+			sourceFile = fileChooser.getSelectedFile();
+		}
 		
 		/*
 		 * Get the destination file
 		 */
-
-		File destinationFile = new File(sourceFile.getAbsolutePath() + File.separator + "FLAT-" + sourceFile.getName());
 		
-		fileChooser.setDialogTitle("Select the Destination PDF File");
-		fileChooser.setApproveButtonText("Set Destination PDF");
-		fileChooser.setSelectedFile(destinationFile);
+		File destinationFile = null;
+		boolean destinationFileFromArgument = false;
 		
-		returnValue = fileChooser.showSaveDialog(null);
-		
-		if (returnValue != JFileChooser.APPROVE_OPTION) {
-			JOptionPane.showMessageDialog(null, "No Destination PDF file selected.", "Error", JOptionPane.ERROR_MESSAGE);
-			System.exit(1);
+		if (args.length >= 2) {
+			destinationFile = new File(args[1]);
+			
+			if (!sourceFile.getName().toLowerCase().endsWith(".pdf")) {
+				JOptionPane.showMessageDialog(null, "Invalid destination file.\n" +
+						args[0], "Error", JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+			else {
+				destinationFileFromArgument = true;
+			}
 		}
 		
-		destinationFile = fileChooser.getSelectedFile();
+		if (!destinationFileFromArgument) {
+			
+			destinationFile = new File(sourceFile.getAbsolutePath() + File.separator + DESTINATION_FILENAME_PREFIX + sourceFile.getName());
+			
+			fileChooser.setDialogTitle("Select the Destination PDF File");
+			fileChooser.setApproveButtonText("Set Destination PDF");
+			fileChooser.setSelectedFile(destinationFile);
+			
+			int returnValue = fileChooser.showSaveDialog(null);
+			
+			if (returnValue != JFileChooser.APPROVE_OPTION) {
+				JOptionPane.showMessageDialog(null, "No Destination PDF file selected.", "Error", JOptionPane.ERROR_MESSAGE);
+				System.exit(1);
+			}
+			
+			destinationFile = fileChooser.getSelectedFile();
+		}
 		
 		if (sourceFile.getPath().equals(destinationFile.getPath()) && sourceFile.getName().equals(destinationFile.getName())) {
 			JOptionPane.showMessageDialog(null, "You cannot select the same PDF file as both the source and the destination.", "Error", JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
+		
+		if (!destinationFile.getName().toLowerCase().endsWith(".pdf")) {
+			destinationFile = new File(destinationFile.getAbsolutePath() + ".pdf");
+		}
+	
 		
 		/*
 		 * Do the flattening
@@ -96,7 +158,7 @@ public class FlattenPDF {
 				"Ready to Start", 
 				JOptionPane.INFORMATION_MESSAGE);
 
-		returnValue = flattenPDF (sourceFile, destinationFile);
+		int returnValue = flattenPDF (sourceFile, destinationFile);
 		
 		if (returnValue == 0) {
 			JOptionPane.showMessageDialog(null, "The PDF file was flattened successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
