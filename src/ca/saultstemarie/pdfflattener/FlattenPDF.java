@@ -6,12 +6,17 @@ import java.util.Date;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.pdfbox.cos.COSObject;
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.pdmodel.DefaultResourceCache;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.ImageType;
@@ -25,7 +30,15 @@ public class FlattenPDF {
 	public static void main(String[] args) {
 		
 		// Settings
+		
 		System.setProperty("sun.java2d.cmm", "sun.java2d.cmm.kcms.KcmsServiceProvider");
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		catch (Exception e) {
+			// ignore and use default
+		}
 		
 		/*
 		 * Get the source file
@@ -104,12 +117,32 @@ public class FlattenPDF {
 	 */
 	public static int flattenPDF (File sourceFile, File destinationFile) {
 		
+		long startMillis = System.currentTimeMillis();
+		
 		PDDocument sourceDoc = null;
 		PDDocument destDoc = new PDDocument();
 		
 		try {
-		
-			sourceDoc = PDDocument.load(sourceFile);
+
+			long maxAvailableMemoryInMB = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+			
+			// If less than 1GB available, be more memory conscious
+			if (maxAvailableMemoryInMB < 2048) {
+				
+				log("Max memory limited to " + maxAvailableMemoryInMB + "MB. Resource cache will be disabled.");
+				
+				sourceDoc = PDDocument.load(sourceFile, MemoryUsageSetting.setupTempFileOnly());
+
+				sourceDoc.setResourceCache(new DefaultResourceCache() {
+					public void put (COSObject indirect, PDXObject xobject) {
+						// discard
+					}
+				});
+			}
+			else {
+				sourceDoc = PDDocument.load(sourceFile);
+			}
+			
 			PDFRenderer pdfRenderer = new PDFRenderer(sourceDoc);
 			
 			final int pageCount = sourceDoc.getDocumentCatalog().getPages().getCount();
@@ -134,7 +167,13 @@ public class FlattenPDF {
 				
 				log("  Image added successfully.");
 				
+				/*
+				 * Close and clear images
+				 */
+				
 				imagePageContentStream.close();
+				
+				imgObj = null;
 				
 				img.flush();
 				img = null;
@@ -147,7 +186,7 @@ public class FlattenPDF {
 			 * Remove links to the source document before saving.
 			 * (Get back as much memory as possible.)
 			 */
-			
+
 			pdfRenderer = null;
 			
 			sourceDoc.close();
@@ -162,10 +201,10 @@ public class FlattenPDF {
 			destDoc.save(destinationFile);
 			destDoc.close();
 			
-			log("Saved successfully.");
+			log("Saved successfully (" + ((System.currentTimeMillis() - startMillis) / 1000.0) + " seconds).");
 		}
 		catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			log("Error: " + e.getMessage());
 			return 1;
 		}
 		finally {
