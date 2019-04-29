@@ -1,7 +1,7 @@
 # PDF Flattener
 
 Properly redacting PDF files can be an expensive job.
-Oftentimes, files are released with the impression that they are redacted because you can *see* the redacted text.
+Oftentimes, files are released with the impression that they are redacted because you can't *see* the redacted text.
 In reality, those big black rectangles can be removed quite easily with the [right editor](https://inkscape.org/),
 leaving behind the confidential text that should have been removed.
 
