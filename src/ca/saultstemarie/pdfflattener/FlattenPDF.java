@@ -27,18 +27,18 @@ public class FlattenPDF {
 	/**
 	 * Whether or not debug output is printed to the console.
 	 */
-	public static boolean SHOW_DEBUG = true;
+	public static final boolean SHOW_DEBUG = true;
 	
 	/**
 	 * The suggested prefix to add to output files. 
 	 */
-	public static String DESTINATION_FILENAME_PREFIX = "flat--";
+	public static final String DESTINATION_FILENAME_PREFIX = "flat--";
 	
 	/**
 	 * The DPI that should be used when generating images.
 	 * Higher DPI increases the memory requirements and output file sizes, but also produces sharper images.
 	 */
-	public static int IMAGE_DPI = 200;
+	public static final int IMAGE_DPI = 200;
 	
 
 	public static void main(String[] args) {
@@ -66,25 +66,16 @@ public class FlattenPDF {
 		 * Get the source file
 		 */
 		
-		File sourceFile = null;
-		
-		boolean sourceFileFromArgument = false;
-		
+		File sourceFile;
+
 		if (args.length >= 1) {
 			sourceFile = new File(args[0]);
-			
 			if (!sourceFile.exists() || !sourceFile.isFile() || !sourceFile.canRead() || !sourceFile.getName().toLowerCase().endsWith(".pdf")) {
-				JOptionPane.showMessageDialog(null, "Invalid source file.\n" +
-						args[0], "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Invalid source file.\n" + args[0],
+						"Error", JOptionPane.ERROR_MESSAGE);
 				System.exit(1);
 			}
-			else {
-				sourceFileFromArgument = true;
-			}
-		}
-		
-		if (!sourceFileFromArgument) {
-			
+		} else {
 			fileChooser.setDialogTitle("Select the Source PDF File to Flatten");
 			fileChooser.setApproveButtonText("Set Source PDF");
 
@@ -102,24 +93,19 @@ public class FlattenPDF {
 		 * Get the destination file
 		 */
 		
-		File destinationFile = null;
-		boolean destinationFileFromArgument = false;
+		File destinationFile;
 		
 		if (args.length >= 2) {
 			destinationFile = new File(args[1]);
-			
-			if (!sourceFile.getName().toLowerCase().endsWith(".pdf")) {
+
+			if (!destinationFile.getName().toLowerCase().endsWith(".pdf")) {
 				JOptionPane.showMessageDialog(null, "Invalid destination file.\n" +
-						args[0], "Error", JOptionPane.ERROR_MESSAGE);
+						args[1], "Error", JOptionPane.ERROR_MESSAGE);
 				System.exit(1);
 			}
-			else {
-				destinationFileFromArgument = true;
-			}
 		}
-		
-		if (!destinationFileFromArgument) {
-			
+		else {
+
 			destinationFile = new File(sourceFile.getAbsolutePath() + File.separator + DESTINATION_FILENAME_PREFIX + sourceFile.getName());
 			
 			fileChooser.setDialogTitle("Select the Destination PDF File");
@@ -288,7 +274,7 @@ public class FlattenPDF {
 		
 		return 0;
 	}
-	
+
 	private static void log(String message) {
 		if (SHOW_DEBUG) {
 			System.out.println(new Date().toString() + " - " + message);
