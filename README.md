@@ -30,6 +30,8 @@ For convenience, these binaries are bundled into the main build.
 
 ## Usage
 
+[How to Redact in Adobe Acrobat Reader for Free](HOWTO.md)
+
 Check the Releases for an executable JAR file.  Note that the executable JAR makes use of Java's `JFileChooser` class, so a GUI is required.
 
-Alternatively, you can include the JAR file in your project, and call the static `flattenPDF(File src, File dest)` method. 
+Alternatively, you can include the JAR file in your project, and call the static `flattenPDF(File src, File dest)` method.
