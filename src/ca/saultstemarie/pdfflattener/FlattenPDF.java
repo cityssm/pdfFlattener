@@ -38,7 +38,7 @@ public class FlattenPDF {
 	 * The DPI that should be used when generating images.
 	 * Higher DPI increases the memory requirements and output file sizes, but also produces sharper images.
 	 */
-	public static final int IMAGE_DPI = 200;
+	public static int IMAGE_DPI = 200;
 	
 
 	public static void main(String[] args) {
@@ -130,7 +130,25 @@ public class FlattenPDF {
 		if (!destinationFile.getName().toLowerCase().endsWith(".pdf")) {
 			destinationFile = new File(destinationFile.getAbsolutePath() + ".pdf");
 		}
-	
+		
+		
+		/*
+		 * Set the DPI
+		 */
+		
+		
+		String possibleDPI = JOptionPane.showInputDialog(
+				"What is your preferred output image DPI?\n" +
+				"The higher the number, the higher the quality, but also, the higher the output file size.  If unsure, 200 gives quite good results.", 
+				IMAGE_DPI);
+		
+		try {
+			IMAGE_DPI = Integer.parseInt(possibleDPI);
+		}
+		catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(null, "Invalid DPI.  Using " + IMAGE_DPI + ".", "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		
 		
 		/*
 		 * Do the flattening
@@ -139,7 +157,8 @@ public class FlattenPDF {
 		JOptionPane.showMessageDialog(null, "You are about to flatten\n" + 
 				sourceFile.getAbsolutePath() + "\n" + 
 				"into the new file\n" +
-				destinationFile.getAbsolutePath() + "\n\n" +
+				destinationFile.getAbsolutePath() + "\n" +
+				"at " + IMAGE_DPI + " DPI.\n\n" +
 				"This will run in the background.  Please be patient as it may take some time.",
 				"Ready to Start", 
 				JOptionPane.INFORMATION_MESSAGE);
