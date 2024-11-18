@@ -5,7 +5,9 @@ import java.io.File;
 import java.util.Date;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -189,6 +191,16 @@ public class FlattenPDF {
 		PDDocument sourceDoc = null;
 		PDDocument destDoc = new PDDocument();
 		
+		JProgressBar progressBar = new JProgressBar(0, 100);
+		progressBar.setStringPainted(true);
+		
+		JFrame frame = new JFrame("Flattening PDF");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.add(progressBar);
+		frame.setSize(400, 75);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+		
 		try {
 
 			long maxAvailableMemoryInMB = Runtime.getRuntime().maxMemory() / 1024 / 1024;
@@ -244,6 +256,13 @@ public class FlattenPDF {
 				
 				img.flush();
 				img = null;
+				
+				/*
+				 * Update progress bar
+				 */
+				
+				int progress = (int) (((i + 1) / (float) pageCount) * 100);
+				progressBar.setValue(progress);
 			}
 			
 			log("New flattened PDF created in memory.");
@@ -289,6 +308,8 @@ public class FlattenPDF {
 			catch (Exception e) {
 				// ignore
 			}
+			
+			frame.dispose();
 		}
 		
 		return 0;
