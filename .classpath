@@ -6,9 +6,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/pdfbox/fontbox-2.0.32.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox/jbig2-imageio-3.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/pdfbox/pdfbox-2.0.32.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/pdfbox/jbig2-imageio-3.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/pdfbox/fontbox-2.0.24.jar"/>
-	<classpathentry kind="lib" path="lib/pdfbox/pdfbox-2.0.24.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
