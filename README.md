@@ -5,7 +5,7 @@ Oftentimes, files are released with the impression that they are redacted becaus
 In reality, those big black rectangles can be removed quite easily with the [right editor](https://inkscape.org/),
 leaving behind the confidential text that should have been removed.
 
-Preseving PDF form content can be a concern as well.  How can we be assured that form content is not altered after we receive it?
+Preserving PDF form content can be a concern as well.  How can we be assured that form content is not altered after we receive it?
 
 When a PDF is flattened, the layered content, like those floating black rectangles and form fields, are all combined into a single image layer.
 
